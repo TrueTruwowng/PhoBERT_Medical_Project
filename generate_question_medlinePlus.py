@@ -3,10 +3,9 @@ import os
 from tqdm import tqdm
 from vllm import LLM, SamplingParams
 
-# --- CẤU HÌNH ---
 # Sử dụng model mạnh về đa ngôn ngữ và y tế
 MODEL_ID = "Qwen/Qwen2.5-32B-Instruct-AWQ"
-INPUT_FILE = 'data_medlineplus_vi.json'   # File dữ liệu MedlinePlus của bạn
+INPUT_FILE = 'data_medlineplus_vi.json'   # File dữ liệu MedlinePlus
 OUTPUT_FILE = 'train_dataset_medlineplus.jsonl'
 
 # Cấu hình VLLM
@@ -19,7 +18,7 @@ llm = LLM(
     enforce_eager=True
 )
 
-# Cấu hình sinh văn bản (Temperature thấp hơn chút để bám sát sự thật y khoa)
+# Cấu hình sinh văn bản 
 sampling_params = SamplingParams(
     temperature=0.6,
     top_p=0.9,
@@ -51,11 +50,11 @@ YÊU CẦU:
 
 def main():
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ Không tìm thấy file {INPUT_FILE}")
+        print(f"Không tìm thấy file {INPUT_FILE}")
         return
 
     # 1. Đọc dữ liệu đầu vào
-    print("📂 Đang đọc dữ liệu MedlinePlus...")
+    print("Đang đọc dữ liệu MedlinePlus...")
     with open(INPUT_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
         # Xử lý trường hợp data là dict hoặc list
@@ -68,10 +67,9 @@ def main():
     metadata = []
 
     # 2. Tạo Prompt
-    print("⚙️ Đang tạo prompt...")
+    print("Đang tạo prompt...")
     for item in tqdm(data):
-        # Mapping trường dữ liệu (Bạn cần sửa lại key cho khớp file JSON của bạn)
-        # MedlinePlus thường có: title, summary, content, hoặc description
+        # MedlinePlus có: title, summary, content, hoặc description
         title = item.get('title', {}).get('#text', '') if isinstance(item.get('title'), dict) else item.get('title', 'Y tế')
 
         # Lấy nội dung: ưu tiên content dài, nếu không có thì lấy summary
@@ -86,10 +84,10 @@ def main():
         all_prompts.append(prompt)
         metadata.append({"source": "MedlinePlus", "topic": title})
 
-    print(f"📦 Tổng số prompt cần chạy: {len(all_prompts)}")
+    print(f"Tổng số prompt cần chạy: {len(all_prompts)}")
 
     # 3. Chạy Inference (Batch)
-    print("🚀 Bắt đầu sinh dữ liệu...")
+    print("Bắt đầu sinh dữ liệu...")
     outputs = llm.generate(all_prompts, sampling_params)
 
     # 4. Lưu kết quả
@@ -129,8 +127,9 @@ def main():
             except Exception as e:
                 continue
 
-    print(f"\n✅ HOÀN TẤT! Đã sinh được {valid_count} câu hỏi tiếng Việt từ MedlinePlus.")
+    print(f"\nHOÀN TẤT! Đã sinh được {valid_count} câu hỏi tiếng Việt từ MedlinePlus.")
     print(f"Lưu tại: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
+
     main()
