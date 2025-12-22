@@ -44,9 +44,7 @@ def identify_section(title):
     for key in SECTION_MAP:
         if key in t:
             return SECTION_MAP[key]
-    return None  # mục không xác định
-
-# Test với 10 URL đầu tiên
+    return None  
 
 
 for i, url in enumerate(all_urls, 1):
@@ -123,3 +121,4 @@ with open("medlatec_structured.csv", "w", encoding="utf-8", newline="") as f:
     writer.writerows(output)
 
 print("\nDONE! Saved structured JSON + CSV.")
+
