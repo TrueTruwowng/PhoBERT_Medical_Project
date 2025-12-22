@@ -9,7 +9,7 @@ MODEL_ID = "Qwen/Qwen2.5-32B-Instruct-AWQ"
 INPUT_FILE = 'medlatec_benh.json'  # Your data file name
 OUTPUT_FILE = 'train_dataset_medlatec.jsonl'
 
-print(f"🚀 Đang khởi động Engine vLLM với {MODEL_ID}...") # Retained print
+print(f"Đang khởi động Engine vLLM với {MODEL_ID}...") # Retained print
 
 # Initialize vLLM Engine
 # gpu_memory_utilization=0.9: Use 90% of A100 VRAM
@@ -30,7 +30,7 @@ sampling_params = SamplingParams(
     stop=["<|im_end|>", "<|endoftext|>"]
 )
 
-print("✅ Engine sẵn sàng! Chuẩn bị đua tốc độ...") # Retained print
+print("Engine sẵn sàng! Chuẩn bị đua tốc độ...") # Retained print
 
 
 def parse_sections(text):
@@ -106,11 +106,11 @@ def main():
         data = json.load(f)
         if isinstance(data, dict): data = [data]
 
-    # --- STEP 1: CREATE LIST OF ALL PROMPTS ---
+    # CREATE LIST OF ALL PROMPTS
     all_prompts = []
     metadata = []  # Stores accompanying info to map results back
 
-    print("🔄 Đang chuẩn bị dữ liệu...") # Retained print
+    print("Đang chuẩn bị dữ liệu...") # Retained print
     for item in tqdm(data, desc="Parsing"):
         clean_text = item.get('clean_text', '')
         url = item.get('url', '')
@@ -126,14 +126,14 @@ def main():
             all_prompts.append(prompt)
             metadata.append({"url": url, "category": sec_key})
 
-    print(f"📦 Tổng cộng có {len(all_prompts)} tác vụ cần xử lý.") # Retained print
+    print(f"Tổng cộng có {len(all_prompts)} tác vụ cần xử lý.") # Retained print
 
-    # --- STEP 2: RUN BATCH INFERENCE ---
-    print("🚀 BẮT ĐẦU CHẠY BATCH TRÊN A100...") # Retained print
+    # RUN BATCH INFERENCE 
+    print("BẮT ĐẦU CHẠY BATCH TRÊN A100...") # Retained print
     # This part is much faster than traditional iterative generation
     outputs = llm.generate(all_prompts, sampling_params)
 
-    # --- STEP 3: SAVE RESULTS ---
+    # STEP 3: SAVE RESULTS
     count = 0
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f_out:
         for i, output in enumerate(outputs):
@@ -172,8 +172,9 @@ def main():
                 continue
 
     print(f"\n HOÀN TẤT! Đã sinh được {count} câu hỏi.") # Retained print
-    print(f"📂 Kết quả lưu tại: {OUTPUT_FILE}") # Retained print
+    print(f"Kết quả lưu tại: {OUTPUT_FILE}") # Retained print
 
 if __name__ == "__main__":
 
     main()
+
